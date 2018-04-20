@@ -71,7 +71,7 @@ console.log(`Starting to send transactions in parallel`)
 const initialNonce = web3.cmt.getTransactionCount(fromAddress)
 const start = new Date()
 console.log("start time: ", start)
-utils.tokenTransfer(web3, tokenInstance, transactions, (err, ms) => {
+utils.tokenTransfer(web3, tokenInstance, transactions, (err, failed) => {
   if (err) {
     console.error("Couldn't send Transactions:")
     console.error(err)
@@ -83,7 +83,7 @@ utils.tokenTransfer(web3, tokenInstance, transactions, (err, ms) => {
     fromAddress,
     endBalance,
     initialNonce,
-    totalTxs,
+    totalTxs - failed,
     (err, endDate) => {
       if (err) {
         console.error("Couldn't process transactions in blocks")

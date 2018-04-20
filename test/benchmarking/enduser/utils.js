@@ -38,52 +38,53 @@ exports.generateTransaction = txObject => {
 }
 
 exports.sendRawTransactions = (web3, transactions, cb) => {
-  let start = new Date()
   async.parallelLimit(
-    transactions.map(tx => {
-      return web3.cmt.sendRawTransaction.bind(null, tx)
-    }),
+    async.reflectAll(
+      transactions.map(tx => {
+        return web3.cmt.sendRawTransaction.bind(null, tx)
+      })
+    ),
     config.get("concurrency"),
-    err => {
-      if (err) {
-        return cb(err)
-      }
-
-      cb(null, new Date() - start)
+    (err, results) => {
+      let failed = results.filter(r => r.error).length
+      console.log("failed: ", failed, ", total: ", results.length)
+      cb(null, failed)
     }
   )
 }
 
 exports.sendTransactions = (web3, transactions, cb) => {
-  let start = new Date()
   async.parallelLimit(
-    transactions.map(tx => {
-      return web3.cmt.sendTransaction.bind(null, tx)
-    }),
+    async.reflectAll(
+      transactions.map(tx => {
+        return web3.cmt.sendTransaction.bind(null, tx)
+      })
+    ),
     config.get("concurrency"),
-    err => {
-      if (err) {
-        return cb(err)
-      }
-
-      cb(null, new Date() - start)
+    (err, results) => {
+      let failed = results.filter(r => r.error).length
+      console.log("failed: ", failed, ", total: ", results.length)
+      cb(null, failed)
     }
   )
 }
 
 exports.tokenTransfer = (web3, tokenInstance, transactions, cb) => {
-  let start = new Date()
   async.parallelLimit(
-    transactions.map(tx => {
-      return tokenInstance.transfer.sendTransaction.bind(null, tx.to, tx.value)
-    }),
+    async.reflectAll(
+      transactions.map(tx => {
+        return tokenInstance.transfer.sendTransaction.bind(
+          null,
+          tx.to,
+          tx.value
+        )
+      })
+    ),
     config.get("concurrency"),
-    err => {
-      if (err) {
-        return cb(err)
-      }
-
-      cb(null, new Date() - start)
+    (err, results) => {
+      let failed = results.filter(r => r.error).length
+      console.log("failed: ", failed, ", total: ", results.length)
+      cb(null, failed)
     }
   )
 }
